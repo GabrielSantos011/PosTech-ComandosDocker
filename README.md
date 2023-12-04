@@ -131,3 +131,34 @@ Para não perdemos os dados do container alguma das soluções são
 - Por volumes (administrado pelo docker): ```docker run -it -v <nome volume>:<diretório container> ubuntu:latest /bin/bash``` or ```--mount source= <nome volume>, target= <diretório container>```
   - Podemos ver os volumes com ```docker volume ls```
   - Podemos criar volumes com ```docker volume create <nome>```
+
+## Aula 5
+### Redes (foco em bridge) - dois containers se comunicando
+O docker por padrão ja nos gera 3 tipos de rede, sendo a padrão a bridge.
+Isso significa que ao rodarmos um container ele já tem uma rede bridge.
+Podemos verificar isso por meio de um ```docker inspect <container id>```
+
+- Para listar as redes ```docker network ls```
+
+Porém a dessa maneira para nos comunicarmos com outro container seria necessário utilizar o IP.
+Tendo em vista de que os containers podem cair e alterar o número de ip essa não é a melhor forma de acesso.
+A melhor maneira é criando a nossa própria rede!
+
+- Para criar uma rede (bridge) ```docker network create --driver bridge <nome da rede>```
+- Para deletar uma rede ```docker network rm <id>```
+- Para vincular um container a nossa rede ```docker run -it --name ubunto1 --network <nome rede> ubunto bash```
+
+Com isso, ao subir outro container especificando esta mesma rede podemos dar um ping, por exemplo, por meio do nome do container.
+
+#### Pratica de redes
+```
+docker pull mongo:4.4.6
+docker pull aluradocker/alura-books:1.0
+docker network create --driver bridge minha-bridge
+docker run -d --network minha-bridge --name meu-mongo mongo:4.4.6
+docker run -d --network minha-bridge --name alurabooks -p 3000:3000 aluradocker/alura-books:1.0
+```
+Com isso se acessarmos http://localhost:3000 veremos a aplicação no ar.
+Na aplicação temos um endpoint que salva determinados livros ele pode ser acessado com http://localhost:3000/seed
+agora se voltarmos a página inicial teremos os livros listados.
+Testamos assim o vinculo de dois containers.
